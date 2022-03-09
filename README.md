@@ -1,6 +1,6 @@
 # migi_scan
 
-Migi Scan
+Migi Scan is a App to encourage sustainability while shopping in the Migros.
 
 ## Getting Started
 
