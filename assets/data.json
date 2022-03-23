@@ -1,0 +1,62 @@
+[
+  {
+    "productID":"1",
+    "productType": "chocolate",
+    "productName":"MBudget Milchschokolade",
+    "mCheckPoints":"2",
+    "originCountry":"Switzerland",
+    "barCode":"7613269195306",
+    "productImage":"null",
+    "quantity": 1
+  },
+  {
+    "productID":"2",
+    "productType": "chocolate",
+    "productName":"Lindt Milch Extra",
+    "mCheckPoints":"1",
+    "originCountry":"Switzerland",
+    "barCode":"7610400010016",
+    "productImage":"null",
+    "quantity": 1
+  },
+  {
+    "productID":"3",
+    "productType": "chocolate",
+    "productName":"Frey Pralinor",
+    "mCheckPoints":"3",
+    "originCountry":"Switzerland",
+    "barCode":"7616500020344",
+    "productImage":"null",
+    "quantity": 1
+  },
+  {
+    "productID":"4",
+    "productType": "chocolate",
+    "productName":"Bärner Schoggi",
+    "mCheckPoints":"5",
+    "originCountry":"Switzerland",
+    "barCode":"7613312274804",
+    "productImage":"null",
+    "quantity": 1
+  },
+  {
+    "productID":"5",
+    "productType": "chocolate",
+    "productName":"Au lait Milchschockolade",
+    "mCheckPoints":"2",
+    "originCountry":"Switzerland",
+    "barCode":"7613312085745",
+    "productImage":"null",
+    "quantity": 1
+  },
+  {
+    "productID":"6",
+    "productType": "chocolate",
+    "productName":"A new Product",
+    "mCheckPoints":"1",
+    "originCountry":"Switzerland",
+    "barCode":"5901234123457",
+    "productImage":"null",
+    "quantity": 1
+  }
+]
