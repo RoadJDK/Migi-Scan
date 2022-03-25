@@ -63,6 +63,11 @@ flutter:
 
   assets:
     - assets/data.json
+    - assets/au_lait_milchschokolade.gif
+    - assets/bärner_schoggi.gif
+    - assets/frey_pralinor.gif
+    - assets/lindt_milch_extra.gif
+    - assets/mbudget_milchschokolade.gif
 
   # To add assets to your application, add an assets section, like this:
   # assets:

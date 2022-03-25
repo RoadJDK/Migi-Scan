@@ -6,7 +6,7 @@
     "mCheckPoints":"2",
     "originCountry":"Switzerland",
     "barCode":"7613269195306",
-    "productImage":"null",
+    "productImage":"assets/mbudget_milchschokolade.gif",
     "quantity": 1
   },
   {
@@ -16,7 +16,7 @@
     "mCheckPoints":"1",
     "originCountry":"Switzerland",
     "barCode":"7610400010016",
-    "productImage":"null",
+    "productImage":"assets/lindt_milch_extra.gif",
     "quantity": 1
   },
   {
@@ -26,7 +26,7 @@
     "mCheckPoints":"3",
     "originCountry":"Switzerland",
     "barCode":"7616500020344",
-    "productImage":"null",
+    "productImage":"assets/frey_pralinor.gif",
     "quantity": 1
   },
   {
@@ -36,7 +36,7 @@
     "mCheckPoints":"5",
     "originCountry":"Switzerland",
     "barCode":"7613312274804",
-    "productImage":"null",
+    "productImage":"assets/bärner_schoggi.gif",
     "quantity": 1
   },
   {
@@ -46,17 +46,7 @@
     "mCheckPoints":"2",
     "originCountry":"Switzerland",
     "barCode":"7613312085745",
-    "productImage":"null",
+    "productImage":"assets/au_lait_milchschokolade.gif",
     "quantity": 1
   },
-  {
-    "productID":"6",
-    "productType": "chocolate",
-    "productName":"A new Product",
-    "mCheckPoints":"1",
-    "originCountry":"Switzerland",
-    "barCode":"5901234123457",
-    "productImage":"null",
-    "quantity": 1
-  }
 ]
