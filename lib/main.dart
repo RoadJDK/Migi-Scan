@@ -10,7 +10,6 @@ import 'package:migi_scan/Product.dart';
 const String COLOR_CODE = "#ff6600";
 const String CANCEL_BUTTON_TEXT = "Cancel";
 
-const bool _ifHideAppBar = false;
 bool useAlternative = false;
 
 List<Product>? products;
@@ -138,6 +137,10 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
             var scannedBarcode = await FlutterBarcodeScanner.scanBarcode(
                 COLOR_CODE, CANCEL_BUTTON_TEXT, false, ScanMode.BARCODE);
 
+            if (scannedBarcode == '-1') {
+              return;
+            }
+
             int mCheckScore = 0;
             var contain =
                 products.where((product) => product.barCode == scannedBarcode);
@@ -232,6 +235,98 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          if (scannedProducts.isNotEmpty) {
+            for (var i = 0; i < scannedProducts.length; i++) {
+              if (scannedProducts[i].productID != '0') {
+                for (var j = 0; j < scannedProducts[i].quantity; j++) {
+                  await showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (_) => BarcodeDialog(scannedProducts[i].productImage)
+                  );
+                }
+              }
+            }
+
+            int totalPoints = 0;
+
+            for (var i = 0; i < scannedProducts.length; i++) {
+              totalPoints += int.parse(scannedProducts[i].mCheckPoints);
+            }
+
+            await showDialog(
+                context: context,
+                builder: (_) => CheckoutDialog(totalPoints)
+            );
+
+            scannedProducts.clear();
+            setState(() {});
+          }
+        },
+        child: const Icon(Icons.shopping_cart_outlined),
+        backgroundColor: Color.fromRGBO(255, 102, 0, 1),
+      ),
+    );
+  }
+}
+
+class BarcodeDialog extends StatelessWidget {
+  String barcode = "";
+
+  BarcodeDialog(String barcode) {
+    this.barcode = barcode;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: InkWell(
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: ExactAssetImage(barcode),
+                  fit: BoxFit.contain
+              )
+          ),
+        ),
+        onTap: () {
+          Navigator.pop(context);
+        },
+      )
+    );
+  }
+}
+
+class CheckoutDialog extends StatelessWidget {
+  int points = 0;
+
+  CheckoutDialog(int points) {
+    this.points = points;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: InkWell(
+        child: Container(
+            width: 200,
+            height: 200,
+            child: Center(
+                child: Text(
+                  'You gained ${points} points! Not bad..',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                )
+            )
+        ),
+        onTap: () {
+          Navigator.pop(context);
+        },
+      )
     );
   }
 }

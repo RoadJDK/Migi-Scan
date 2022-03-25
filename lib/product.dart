@@ -16,7 +16,6 @@ class Product {
   Product(this.productID, this.productName, this.mCheckPoints,
       this.originCountry, this.barCode, this.productImage, this.quantity);
 
-
   factory Product.fromJson(dynamic json) {
     return Product(
         json['productID'] as String,
