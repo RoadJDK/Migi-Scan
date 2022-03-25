@@ -253,13 +253,19 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
             int totalPoints = 0;
 
             for (var i = 0; i < scannedProducts.length; i++) {
-              totalPoints += int.parse(scannedProducts[i].mCheckPoints);
+              if (scannedProducts[i].productID != '0') {
+                for (var j = 0; j < scannedProducts[i].quantity; j++) {
+                  totalPoints += int.parse(scannedProducts[i].mCheckPoints);
+                }
+              }
             }
 
-            await showDialog(
-                context: context,
-                builder: (_) => CheckoutDialog(totalPoints)
-            );
+            if (totalPoints >= 1) {
+              await showDialog(
+                  context: context,
+                  builder: (_) => CheckoutDialog(totalPoints)
+              );
+            }
 
             scannedProducts.clear();
             setState(() {});
