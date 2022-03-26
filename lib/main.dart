@@ -127,126 +127,149 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
     const Key centerKey = ValueKey<String>('bottom-sliver-list');
 
     return Scaffold(
-        body: CustomScrollView(
-          center: centerKey,
-          slivers: <Widget>[
-            SliverList(
-              key: centerKey,
-              delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                  return Container(
-                    width: double.infinity,
-                    color: colorPicker(),
-                    margin: EdgeInsets.all(20),
-                    height: 200,
-                    child: Column(
-                      children: <Widget>[
-                        Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                                '${scannedProducts[index].quantity}x: ${scannedProducts[index].productName}'
-                            )
-                        ),
-                        Align(
-                            alignment: Alignment.center,
-                            child: TextButton.icon(
-                              onPressed: () {
-                                scannedProducts[index].quantity += 1;
-                                setState(() {});
-                              },
-                              icon: Icon(Icons.add, size: 18),
-                              label: Text(""),
-                            )
-                        ),
-                        Align(
-                            alignment: Alignment.center,
-                            child: TextButton.icon(
-                              onPressed: () {
-                                scannedProducts[index].quantity -= 1;
-                                if (scannedProducts[index].quantity <= 0) {
-                                  scannedProducts[index].quantity = 1;
-                                  scannedProducts.remove(scannedProducts[index]);
-                                }
-                                setState(() {});
-                              },
-                              icon: Icon(Icons.remove, size: 18),
-                              label: Text(""),
-                            )
-                        ),
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton.icon(
-                              onPressed: () {
-                                scannedProducts[index].quantity = 1;
-                                scannedProducts.remove(scannedProducts[index]);
-                                setState(() {});
-                              },
-                              icon: Icon(Icons.delete_outlined, size: 18),
-                              label: Text(""),
-                            )
-                        )
-                      ],
-                    ),
-                  );
-                },
-                childCount: scannedProducts.length,
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        slivers: <Widget>[
+          const SliverPadding(
+            padding: EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
+            sliver: SliverAppBar(
+              title: Text(
+                'PRODUCT OVERVIEW',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black),
+              ),
+              backgroundColor: Colors.white,
+              floating: true,
+              snap: true,
+            )
+          ),
+          const SliverPadding(
+            padding: EdgeInsets.only(left: 20.0, top: 5, right: 20, bottom: 20),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                'My Shopping Card',
+                textAlign: TextAlign.left,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black),
               ),
             ),
-          ],
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FloatingActionButton.extended(
-                onPressed: () async {
-                  var scannedBarcode = await FlutterBarcodeScanner.scanBarcode(
-                      '#ff6600', CANCEL_BUTTON_TEXT, false, ScanMode.BARCODE);
+          ),
+          SliverList(
+            key: centerKey,
+            delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                return Container(
+                  width: double.infinity,
+                  color: colorPicker(),
+                  margin: EdgeInsets.all(20),
+                  height: 200,
+                  child: Column(
+                    children: <Widget>[
+                      Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                              '${scannedProducts[index].quantity}x: ${scannedProducts[index].productName}'
+                          )
+                      ),
+                      Align(
+                          alignment: Alignment.center,
+                          child: TextButton.icon(
+                            onPressed: () {
+                              scannedProducts[index].quantity += 1;
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.add, size: 18),
+                            label: Text(""),
+                          )
+                      ),
+                      Align(
+                          alignment: Alignment.center,
+                          child: TextButton.icon(
+                            onPressed: () {
+                              scannedProducts[index].quantity -= 1;
+                              if (scannedProducts[index].quantity <= 0) {
+                                scannedProducts[index].quantity = 1;
+                                scannedProducts.remove(scannedProducts[index]);
+                              }
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.remove, size: 18),
+                            label: Text(""),
+                          )
+                      ),
+                      Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton.icon(
+                            onPressed: () {
+                              scannedProducts[index].quantity = 1;
+                              scannedProducts.remove(scannedProducts[index]);
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.delete_outlined, size: 18),
+                            label: Text(""),
+                          )
+                      )
+                    ],
+                  ),
+                );
+              },
+              childCount: scannedProducts.length,
+            ),
+          ),
+        ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton.extended(
+              onPressed: () async {
+                var scannedBarcode = await FlutterBarcodeScanner.scanBarcode(
+                    '#ff6600', CANCEL_BUTTON_TEXT, false, ScanMode.BARCODE);
 
-                  if (scannedBarcode == '-1') {
-                    return;
+                if (scannedBarcode == '-1') {
+                  return;
+                }
+
+                int mCheckScore = 0;
+                var contain =
+                products.where((product) => product.barCode == scannedBarcode);
+                if (contain.isNotEmpty) {
+                  mCheckScore = int.parse(contain.first.mCheckPoints);
+                }
+
+                var highestMCheckProduct = Product(
+                    "0", "Unknown Product", "0", "Unknown", "Unknown", "Unknown", 1);
+                var highestMCheck = 0;
+
+                for (var i = 0; i < products.length; i++) {
+                  if (int.parse(products[i].mCheckPoints) > highestMCheck) {
+                    highestMCheck = int.parse(products[i].mCheckPoints);
+                    highestMCheckProduct = products[i];
                   }
+                }
 
-                  int mCheckScore = 0;
-                  var contain =
-                  products.where((product) => product.barCode == scannedBarcode);
-                  if (contain.isNotEmpty) {
-                    mCheckScore = int.parse(contain.first.mCheckPoints);
-                  }
+                var alreadyAdded =
+                scannedProducts.where((product) => product.productID == contain.first.productID);
 
-                  var highestMCheckProduct = Product(
-                      "0", "Unknown Product", "0", "Unknown", "Unknown", "Unknown", 1);
-                  var highestMCheck = 0;
+                validateAnswer(scannedBarcode, contain, mCheckScore, highestMCheck, highestMCheckProduct, alreadyAdded);
 
-                  for (var i = 0; i < products.length; i++) {
-                    if (int.parse(products[i].mCheckPoints) > highestMCheck) {
-                      highestMCheck = int.parse(products[i].mCheckPoints);
-                      highestMCheckProduct = products[i];
-                    }
-                  }
-
-                  var alreadyAdded =
-                  scannedProducts.where((product) => product.productID == contain.first.productID);
-
-                  validateAnswer(scannedBarcode, contain, mCheckScore, highestMCheck, highestMCheckProduct, alreadyAdded);
-
-                  setState(() {});
-                },
-                label: const Text('ADD PRODUCT'),
-                backgroundColor: DEFAULT_COLOR,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              FloatingActionButton.extended(
-                onPressed: () {
-                  // Add your onPressed code here!
-                },
-                label: const Text('CHECKOUT'),
-                backgroundColor: Colors.lightGreen,
-              )
-            ]
-        )
+                setState(() {});
+              },
+              label: const Text('ADD PRODUCT'),
+              backgroundColor: DEFAULT_COLOR,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            FloatingActionButton.extended(
+              onPressed: () {
+                // Add your onPressed code here!
+              },
+              label: const Text('CHECKOUT'),
+              backgroundColor: Colors.lightGreen,
+            )
+          ]
+      )
     );
   }
 }
