@@ -68,6 +68,13 @@ flutter:
     - assets/frey_pralinor.gif
     - assets/lindt_milch_extra.gif
     - assets/mbudget_milchschokolade.gif
+    - assets/chocolate.png
+    - assets/egg.png
+    - assets/star_1.png
+    - assets/star_2.png
+    - assets/star_3.png
+    - assets/star_4.png
+    - assets/star_5.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

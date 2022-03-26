@@ -1,9 +1,3 @@
-import 'dart:convert';
-
-Product employeeFromJson(String str) => Product.fromJson(json.decode(str));
-
-String employeeToJson(Product data) => json.encode(data.toJson());
-
 class Product {
   String productID;
   String productName;
@@ -11,10 +5,12 @@ class Product {
   String originCountry;
   String barCode;
   String productImage;
+  double productPrice;
+  double totalPrice;
   int quantity = 1;
 
   Product(this.productID, this.productName, this.mCheckPoints,
-      this.originCountry, this.barCode, this.productImage, this.quantity);
+      this.originCountry, this.barCode, this.productImage, this.productPrice, this.totalPrice, this.quantity);
 
   factory Product.fromJson(dynamic json) {
     return Product(
@@ -24,10 +20,12 @@ class Product {
         json['originCountry'] as String,
         json['barCode'] as String,
         json['productImage'] as String,
+        json['productPrice'] as double,
+        json['totalPrice'] as double,
         json['quantity'] as int);
   }
 
   String toJson() {
-    return '{ ${this.productID}, ${this.productName}, ${this.mCheckPoints}, ${this.originCountry}, ${this.barCode}, ${this.productImage}, ${this.quantity} }';
+    return '{ ${this.productID}, ${this.productName}, ${this.mCheckPoints}, ${this.originCountry}, ${this.barCode}, ${this.productImage}, ${this.productPrice}, ${this.totalPrice}, ${this.quantity} }';
   }
 }

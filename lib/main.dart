@@ -55,16 +55,6 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
     products = (parsed as List).map((data) => Product.fromJson(data)).toList();
   }
 
-  Color colorPicker() {
-    if (isAlternating == true) {
-      isAlternating = false;
-      return Color.fromRGBO(187, 222, 251, 1);
-    } else {
-      isAlternating = true;
-      return Color.fromRGBO(197, 202, 233, 1);
-    }
-  }
-
   validateAnswer(String scannedBarcode, Iterable<Product> contain, int mCheckScore,
       int highestMCheck, Product highestMCheckProduct, Iterable<Product> alreadyAdded) {
 
@@ -117,9 +107,32 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
       }
     } else {
       scannedProducts.add(Product(
-          "0", "Unknown Product", "0", "Unknown", "Unknown", "Unknown", 1));
+          "0", "Unknown Product", "0", "Unknown", "Unknown", "Unknown", 0.00, 0.00, 1));
       setState(() {});
     }
+  }
+
+  String calculateStars(Product product) {
+    var points = int.parse(product.mCheckPoints);
+
+    switch (points) {
+      case 1:
+        return 'assets/star_1.png';
+
+      case 2:
+        return 'assets/star_2.png';
+
+      case 3:
+        return 'assets/star_3.png';
+
+      case 4:
+        return 'assets/star_4.png';
+
+      case 5:
+        return 'assets/star_5.png';
+    }
+
+    return '';
   }
 
   @override
@@ -144,7 +157,7 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
             )
           ),
           const SliverPadding(
-            padding: EdgeInsets.only(left: 20.0, top: 5, right: 20, bottom: 20),
+            padding: EdgeInsets.only(left: 20.0, top: 5, right: 20, bottom: 2),
             sliver: SliverToBoxAdapter(
               child: Text(
                 'My Shopping Card',
@@ -154,62 +167,129 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
             ),
           ),
           SliverList(
-            key: centerKey,
             delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
                 return Container(
-                  width: double.infinity,
-                  color: colorPicker(),
-                  margin: EdgeInsets.all(20),
-                  height: 200,
-                  child: Column(
-                    children: <Widget>[
-                      Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                              '${scannedProducts[index].quantity}x: ${scannedProducts[index].productName}'
-                          )
+                  margin: const EdgeInsets.only(left: 20, right: 20),
+                  height: 150,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                            padding: const EdgeInsets.only(left: 2, top: 2, right: 2, bottom: 2),
+                            child: Container(
+                              margin: const EdgeInsets.all(20),
+                                decoration: const BoxDecoration(
+                                  color: Color.fromRGBO(204, 204, 204, 0.3),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(12.0),
+                                  ),
+                                ),
+                              height: 100,
+                              width: 100,
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Image.asset(
+                                  'assets/chocolate.png',
+                                  height: 75,
+                                  width: 75,
+                                ),
+                              )
+                            )
+                        )
                       ),
-                      Align(
-                          alignment: Alignment.center,
-                          child: TextButton.icon(
-                            onPressed: () {
-                              scannedProducts[index].quantity += 1;
-                              setState(() {});
-                            },
-                            icon: Icon(Icons.add, size: 18),
-                            label: Text(""),
-                          )
-                      ),
-                      Align(
-                          alignment: Alignment.center,
-                          child: TextButton.icon(
-                            onPressed: () {
-                              scannedProducts[index].quantity -= 1;
-                              if (scannedProducts[index].quantity <= 0) {
-                                scannedProducts[index].quantity = 1;
-                                scannedProducts.remove(scannedProducts[index]);
-                              }
-                              setState(() {});
-                            },
-                            icon: Icon(Icons.remove, size: 18),
-                            label: Text(""),
-                          )
-                      ),
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton.icon(
-                            onPressed: () {
-                              scannedProducts[index].quantity = 1;
-                              scannedProducts.remove(scannedProducts[index]);
-                              setState(() {});
-                            },
-                            icon: Icon(Icons.delete_outlined, size: 18),
-                            label: Text(""),
-                          )
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment:CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: Text(
+                                scannedProducts[index].productName,
+                                style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2, bottom: 2),
+                              child: Text(
+                                  'CHF ${scannedProducts[index].totalPrice.toStringAsFixed(2)}',
+                                  style: const TextStyle(color: Colors.black, fontSize: 12),
+                                  textAlign: TextAlign.left),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2, bottom: 2),
+                              child: Image.asset(
+                                  calculateStars(scannedProducts[index]),
+                                  height: 10
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.remove_circle_outline),
+                                    onPressed: () {
+                                      scannedProducts[index].quantity -= 1;
+                                      scannedProducts[index].totalPrice = scannedProducts[index].totalPrice - scannedProducts[index].productPrice;
+
+                                      if (scannedProducts[index].quantity <= 0) {
+                                        scannedProducts[index].quantity = 1;
+                                        scannedProducts[index].totalPrice = scannedProducts[index].productPrice;
+                                        scannedProducts.remove(scannedProducts[index]);
+                                      }
+                                      setState(() {});
+                                    },
+                                  ),
+                                ),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      '${scannedProducts[index].quantity}x',
+                                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                                      textAlign: TextAlign.center,
+                                    )
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.add_circle_outline),
+                                    onPressed: () {
+                                      scannedProducts[index].quantity += 1;
+                                      scannedProducts[index].totalPrice = (scannedProducts[index].totalPrice + scannedProducts[index].productPrice);
+
+                                      setState(() {});
+                                    },
+                                  ),
+                                ),
+                                const Expanded(
+                                  flex: 1,
+                                  child: SizedBox(),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.delete_outlined),
+                                    onPressed: () {
+                                      scannedProducts[index].quantity = 1;
+                                      scannedProducts[index].totalPrice = scannedProducts[index].productPrice;
+
+                                      scannedProducts.remove(scannedProducts[index]);
+                                      setState(() {});
+                                    },
+                                  ),
+                                )
+                              ]
+                            )
+                          ],
+                        ),
                       )
                     ],
-                  ),
+                  )
                 );
               },
               childCount: scannedProducts.length,
@@ -238,7 +318,7 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
                 }
 
                 var highestMCheckProduct = Product(
-                    "0", "Unknown Product", "0", "Unknown", "Unknown", "Unknown", 1);
+                    "0", "Unknown Product", "0", "Unknown", "Unknown", "Unknown", 0.00, 0.00, 1);
                 var highestMCheck = 0;
 
                 for (var i = 0; i < products.length; i++) {
