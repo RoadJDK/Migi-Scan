@@ -368,7 +368,7 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
             label: const Text('ADD PRODUCT'),
             backgroundColor: DEFAULT_COLOR,
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           FloatingActionButton.extended(
@@ -416,9 +416,7 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
 class BarcodeDialog extends StatelessWidget {
   String barcode = "";
 
-  BarcodeDialog(String barcode) {
-    this.barcode = barcode;
-  }
+  BarcodeDialog(this.barcode, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -441,9 +439,7 @@ class BarcodeDialog extends StatelessWidget {
 class CheckoutDialog extends StatelessWidget {
   int points = 0;
 
-  CheckoutDialog(int points) {
-    this.points = points;
-  }
+  CheckoutDialog(this.points, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
