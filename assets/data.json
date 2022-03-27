@@ -7,6 +7,8 @@
     "originCountry":"Switzerland",
     "barCode":"7613269195306",
     "productImage":"assets/mbudget_milchschokolade.gif",
+    "productPrice":0.50,
+    "totalPrice":0.50,
     "quantity": 1
   },
   {
@@ -17,6 +19,8 @@
     "originCountry":"Switzerland",
     "barCode":"7610400010016",
     "productImage":"assets/lindt_milch_extra.gif",
+    "productPrice":2.40,
+    "totalPrice":2.40,
     "quantity": 1
   },
   {
@@ -27,6 +31,8 @@
     "originCountry":"Switzerland",
     "barCode":"7616500020344",
     "productImage":"assets/frey_pralinor.gif",
+    "productPrice":1.70,
+    "totalPrice":1.70,
     "quantity": 1
   },
   {
@@ -37,6 +43,8 @@
     "originCountry":"Switzerland",
     "barCode":"7613312274804",
     "productImage":"assets/bärner_schoggi.gif",
+    "productPrice":2.30,
+    "totalPrice":2.30,
     "quantity": 1
   },
   {
@@ -47,6 +55,8 @@
     "originCountry":"Switzerland",
     "barCode":"7613312085745",
     "productImage":"assets/au_lait_milchschokolade.gif",
+    "productPrice":1.90,
+    "totalPrice":1.90,
     "quantity": 1
   }
 ]
