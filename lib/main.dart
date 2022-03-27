@@ -13,6 +13,7 @@ bool useAlternative = false;
 
 List<Product>? products;
 List<Product> scannedProducts = [];
+Product? lastAddedProduct;
 
 Future<void> main() async {
   runApp(const MyApp());
@@ -72,21 +73,26 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
         await showDialog(
             barrierDismissible: false,
             context: context,
-            builder: (_) => BetterProductDialog(contain.first, highestMCheckProduct, alreadyAdded));
-        setState(() {});
+            builder: (_) => BetterProductDialog(
+                contain.first, highestMCheckProduct, alreadyAdded));
       } else {
         if (alreadyAdded.isNotEmpty && scannedProducts.isNotEmpty) {
           alreadyAdded.first.quantity += 1;
         } else {
           scannedProducts.add(contain.first);
+          lastAddedProduct = contain.first;
         }
-        setState(() {});
       }
     } else {
-      scannedProducts.add(Product("0", "Unknown Product", "0", "Unknown",
-          "Unknown", "Unknown", 0.00, 0.00, 1));
-      setState(() {});
+      var emptyProduct = Product("0", "Unknown Product", "0", "Unknown",
+          "Unknown", "Unknown", 0.00, 0.00, 1);
+      scannedProducts.add(emptyProduct);
+      lastAddedProduct = emptyProduct;
     }
+
+    await showDialog(context: context, builder: (_) => SuccessDialog());
+
+    setState(() {});
   }
 
   String calculateStars(Product product) {
@@ -158,30 +164,27 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
                           Expanded(
                               flex: 2,
                               child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 2, top: 2, right: 2, bottom: 2),
-                                child: Container(
-                                    margin: const EdgeInsets.all(20),
-                                    decoration: const BoxDecoration(
-                                      color:
-                                          Color.fromRGBO(204, 204, 204, 0.3),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(12.0),
+                                  padding: const EdgeInsets.only(
+                                      left: 2, top: 2, right: 2, bottom: 2),
+                                  child: Container(
+                                      margin: const EdgeInsets.all(20),
+                                      decoration: const BoxDecoration(
+                                        color:
+                                            Color.fromRGBO(204, 204, 204, 0.3),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(12.0),
+                                        ),
                                       ),
-                                    ),
-                                    height: 100,
-                                    width: 100,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20),
-                                      child: Image.asset(
-                                        'assets/chocolate.png',
-                                        height: 75,
-                                        width: 75,
-                                      ),
-                                    )
-                                )
-                            )
-                          ),
+                                      height: 100,
+                                      width: 100,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20),
+                                        child: Image.asset(
+                                          'assets/chocolate.png',
+                                          height: 75,
+                                          width: 75,
+                                        ),
+                                      )))),
                           Expanded(
                             flex: 2,
                             child: Column(
@@ -221,7 +224,18 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
                                     child: IconButton(
                                       icon: const Icon(
                                           Icons.remove_circle_outline),
-                                      onPressed: () {
+                                      onPressed: () async {
+                                        if (scannedProducts[index].quantity <=
+                                            1) {
+                                          await showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (_) => SafetyDialog(
+                                                  scannedProducts[index]));
+                                          setState(() {});
+                                          return;
+                                        }
+
                                         scannedProducts[index].quantity -= 1;
                                         scannedProducts[index].totalPrice =
                                             scannedProducts[index].totalPrice -
@@ -230,13 +244,15 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
 
                                         if (scannedProducts[index].quantity <=
                                             0) {
-                                          scannedProducts[index].quantity = 1;
-                                          scannedProducts[index].totalPrice =
-                                              scannedProducts[index]
-                                                  .productPrice;
-                                          scannedProducts
-                                              .remove(scannedProducts[index]);
+                                          await showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (_) => SafetyDialog(
+                                                  scannedProducts[index]));
+                                          setState(() {});
+                                          return;
                                         }
+
                                         setState(() {});
                                       },
                                     ),
@@ -273,13 +289,13 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
                                     flex: 1,
                                     child: IconButton(
                                       icon: const Icon(Icons.delete_outlined),
-                                      onPressed: () {
-                                        scannedProducts[index].quantity = 1;
-                                        scannedProducts[index].totalPrice =
-                                            scannedProducts[index].productPrice;
+                                      onPressed: () async {
+                                        await showDialog(
+                                            barrierDismissible: false,
+                                            context: context,
+                                            builder: (_) => SafetyDialog(
+                                                scannedProducts[index]));
 
-                                        scannedProducts
-                                            .remove(scannedProducts[index]);
                                         setState(() {});
                                       },
                                     ),
@@ -371,6 +387,12 @@ class ShoppingCardWidget extends State<ShoppingCardWidgetState> {
                       builder: (_) => CheckoutDialog(totalPoints));
                 }
 
+                for (var i = 0; i < scannedProducts.length; i++) {
+                  scannedProducts[i].quantity = 1;
+                  scannedProducts[i].totalPrice =
+                      scannedProducts[i].productPrice;
+                }
+
                 scannedProducts.clear();
                 setState(() {});
               }
@@ -432,12 +454,82 @@ class CheckoutDialog extends StatelessWidget {
   }
 }
 
+class SafetyDialog extends StatelessWidget {
+  Product pendingProduct;
+
+  SafetyDialog(this.pendingProduct, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+        child: SizedBox(
+            width: 200,
+            height: 175,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  const Padding(
+                      padding: EdgeInsets.only(top: 15, bottom: 10),
+                      child: Text(
+                        'Do you wanna delete this item?',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      )),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        pendingProduct.quantity = 1;
+                        pendingProduct.totalPrice = pendingProduct.productPrice;
+                        scannedProducts.remove(pendingProduct);
+                      },
+                      child: const Text('Yes'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.lightGreen,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(12.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 15),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('No'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.red,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(12.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ])));
+  }
+}
+
 class BetterProductDialog extends StatelessWidget {
   Product initialProduct;
   Product betterProduct;
   Iterable<Product> alreadyAdded;
 
-  BetterProductDialog(this.initialProduct, this.betterProduct, this.alreadyAdded, {Key? key}) : super(key: key);
+  BetterProductDialog(
+      this.initialProduct, this.betterProduct, this.alreadyAdded,
+      {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -458,8 +550,7 @@ class BetterProductDialog extends StatelessWidget {
                     fontSize: 15,
                   ),
                   textAlign: TextAlign.center,
-                )
-            ),
+                )),
             const Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: Text(
@@ -470,13 +561,11 @@ class BetterProductDialog extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
-                )
-            ),
+                )),
             Container(
                 margin: const EdgeInsets.all(20),
                 decoration: const BoxDecoration(
-                  color:
-                  Color.fromRGBO(204, 204, 204, 0.3),
+                  color: Color.fromRGBO(204, 204, 204, 0.3),
                   borderRadius: BorderRadius.all(
                     Radius.circular(12.0),
                   ),
@@ -490,8 +579,7 @@ class BetterProductDialog extends StatelessWidget {
                     height: 75,
                     width: 75,
                   ),
-                )
-            ),
+                )),
             Padding(
                 padding: const EdgeInsets.only(bottom: 5),
                 child: Text(
@@ -502,8 +590,7 @@ class BetterProductDialog extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
-                )
-            ),
+                )),
             Padding(
                 padding: const EdgeInsets.only(bottom: 5),
                 child: Text(
@@ -513,8 +600,7 @@ class BetterProductDialog extends StatelessWidget {
                     fontSize: 15,
                   ),
                   textAlign: TextAlign.center,
-                )
-            ),
+                )),
             Text(
               'Winnable points: +${int.parse(betterProduct.mCheckPoints) - int.parse(initialProduct.mCheckPoints)}',
               style: const TextStyle(
@@ -524,26 +610,27 @@ class BetterProductDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    if (alreadyAdded.isNotEmpty && scannedProducts.isNotEmpty) {
-                      alreadyAdded.first.quantity += 1;
-                    } else {
-                      scannedProducts.add(initialProduct);
-                    }
-                  },
-                  child: const Text('Keep old Product'),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(12.0),
-                      ),
+              padding: const EdgeInsets.only(top: 10),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  if (alreadyAdded.isNotEmpty && scannedProducts.isNotEmpty) {
+                    alreadyAdded.first.quantity += 1;
+                  } else {
+                    scannedProducts.add(initialProduct);
+                    lastAddedProduct = initialProduct;
+                  }
+                },
+                child: const Text('Keep old Product'),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(12.0),
                     ),
                   ),
                 ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 10),
@@ -551,13 +638,16 @@ class BetterProductDialog extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
 
-                  var alreadyAddedAlternative =
-                  scannedProducts.where((product) => product.productID == betterProduct.productID);
+                  var alreadyAddedAlternative = scannedProducts.where(
+                      (product) =>
+                          product.productID == betterProduct.productID);
 
-                  if (alreadyAddedAlternative.isNotEmpty && scannedProducts.isNotEmpty) {
+                  if (alreadyAddedAlternative.isNotEmpty &&
+                      scannedProducts.isNotEmpty) {
                     alreadyAddedAlternative.first.quantity += 1;
                   } else {
                     scannedProducts.add(betterProduct);
+                    lastAddedProduct = betterProduct;
                   }
                 },
                 child: const Text('Take this instead'),
@@ -573,6 +663,108 @@ class BetterProductDialog extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class SuccessDialog extends StatelessWidget {
+  String calculateMCheck(Product product) {
+    var points = int.parse(product.mCheckPoints);
+
+    switch (points) {
+      case 1:
+        return 'assets/mcheck_1.png';
+
+      case 2:
+        return 'assets/mcheck_2.png';
+
+      case 3:
+        return 'assets/mcheck_3.png';
+
+      case 4:
+        return 'assets/mcheck_4.png';
+
+      case 5:
+        return 'assets/mcheck_5.png';
+    }
+
+    return '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: InkWell(
+        child: Container(
+            width: 200,
+            height: 525,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Image.asset(
+                      'assets/success.png',
+                      height: 150,
+                      width: 150,
+                    ),
+                  ),
+                  const Padding(
+                      padding: EdgeInsets.only(bottom: 5),
+                      child: Text(
+                        'Product added!',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.only(top: 20, bottom: 5),
+                      child: Text(
+                        lastAddedProduct!.productName,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.only(top: 5, bottom: 5),
+                      child: Text(
+                        'CHF ${lastAddedProduct!.productPrice}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.only(top: 5, bottom: 25),
+                      child: Text(
+                        'Origin: ${lastAddedProduct!.originCountry}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      )),
+                  Image.asset(
+                    'assets/mcheck_logo.png',
+                    width: 100,
+                  ),
+                  Image.asset(
+                    calculateMCheck(lastAddedProduct!),
+                    width: 100,
+                  ),
+                ])),
+        onTap: () {
+          Navigator.pop(context);
+        },
       ),
     );
   }
