@@ -430,9 +430,7 @@ class BarcodeDialog extends StatelessWidget {
 class CheckoutDialog extends StatelessWidget {
   int points = 0;
 
-  CheckoutDialog(int points) {
-    this.points = points;
-  }
+  CheckoutDialog(this.points, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -445,7 +443,7 @@ class CheckoutDialog extends StatelessWidget {
               child: Text(
             'You gained ${points} points! Not bad..',
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ))),
       onTap: () {
         Navigator.pop(context);
